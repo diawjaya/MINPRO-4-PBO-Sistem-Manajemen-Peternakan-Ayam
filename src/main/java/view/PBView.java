@@ -1,442 +1,362 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package view;
 
 import dao.KandangDAO;
 import dao.JenisAyamDAO;
 import dao.PakanDAO;
 import dao.PemberianPakanDAO;
+
 import model.Kandang;
 import model.JenisAyam;
 import model.Pakan;
 import controller.PemberianPakan;
 
 import java.sql.SQLException;
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Scanner;
 
-/**
- *
- * @author ASUS TUF
- */
 public class PBView {
-   private final Scanner input = new Scanner(System.in);
 
+    private final Scanner input = new Scanner(System.in);
     private final KandangDAO kandangDAO = new KandangDAO();
     private final JenisAyamDAO jenisAyamDAO = new JenisAyamDAO();
     private final PakanDAO pakanDAO = new PakanDAO();
     private final PemberianPakanDAO pemberianDAO =
             new PemberianPakanDAO();
 
-    public void tampilkanMenu() {
-        boolean berjalan = true;
+    public void tampilkanMenu() throws SQLException {
+        int pilihan;
 
-        while (berjalan) {
-            System.out.println("\n=== SISTEM MANAJEMEN PETERNAKAN AYAM ===");
-            System.out.println("1. Kelola Kandang");
-            System.out.println("2. Kelola Jenis Ayam");
-            System.out.println("3. Kelola Pakan");
-            System.out.println("4. Kelola Pemberian Pakan");
+        do {
+            System.out.println("\n====================================");
+            System.out.println(" SISTEM MANAJEMEN PETERNAKAN AYAM");
+            System.out.println("====================================");
+            System.out.println("1. Data Kandang (Read)");
+            System.out.println("2. Data Jenis Ayam (Read)");
+            System.out.println("3. Kelola Data Pakan (CRUD)");
+            System.out.println("4. Kelola Pemberian Pakan (CRUD)");
             System.out.println("0. Keluar");
 
-            int pilihan = bacaInteger("Pilih menu: ", 0, 4);
+            pilihan = bacaInt("Pilih menu: ");
 
-            try {
-                switch (pilihan) {
-                    case 1 -> menuKandang();
-                    case 2 -> menuJenisAyam();
-                    case 3 -> menuPakan();
-                    case 4 -> menuPemberianPakan();
-                    case 0 -> {
-                        berjalan = false;
-                        System.out.println("Program selesai.");
-                    }
-                }
-            } catch (SQLException e) {
-                System.out.println("Terjadi kesalahan database: "
-                        + e.getMessage());
+            switch (pilihan) {
+                case 1 -> tampilkanKandang();
+                case 2 -> tampilkanJenisAyam();
+                case 3 -> menuPakan();
+                case 4 -> menuPemberianPakan();
+                case 0 -> System.out.println("Program selesai.");
+                default -> System.out.println("Pilihan tidak tersedia.");
             }
+        } while (pilihan != 0);
+    }
+
+    // KANDANG: READ
+
+    private void tampilkanKandang() {
+        try {
+            List<Kandang> daftar = kandangDAO.getAll();
+
+            System.out.println("\n--- DATA KANDANG ---");
+            if (daftar.isEmpty()) {
+                System.out.println("Belum ada data kandang.");
+                return;
+            }
+
+            for (Kandang k : daftar) {
+                System.out.println(
+                    "ID: " + k.getIdKandang()
+                    + " | Nama: " + k.getNamaKandang()
+                    + " | Kapasitas: " + k.getKapasitas()
+                    + " | Jumlah Ayam: " + k.getJumlahAyam()
+                    + " | Jenis Ayam: " + k.getJenisAyam()
+                    + " | Pakan Dibutuhkan: " + k.getPakanDibutuhkan()
+                );
+            }
+        } catch (SQLException e) {
+            tampilkanError(e);
         }
     }
 
-    private int menuOperasi(String nama) {
-        System.out.println("\n=== KELOLA " + nama.toUpperCase() + " ===");
-        System.out.println("1. Tampilkan data");
-        System.out.println("2. Tambah data");
-        System.out.println("3. Ubah data");
-        System.out.println("4. Hapus data");
-        System.out.println("0. Kembali");
+    // JENIS AYAM: READ
 
-        return bacaInteger("Pilih operasi: ", 0, 4);
-    }
+    private void tampilkanJenisAyam() {
+        try {
+            List<JenisAyam> daftar = jenisAyamDAO.getAll();
 
-    private void menuKandang() throws SQLException {
-        boolean kembali = false;
-
-        while (!kembali) {
-            switch (menuOperasi("Kandang")) {
-                case 1 -> tampilKandang();
-                case 2 -> tambahKandang();
-                case 3 -> ubahKandang();
-                case 4 -> hapusKandang();
-                case 0 -> kembali = true;
+            System.out.println("\n--- DATA JENIS AYAM ---");
+            if (daftar.isEmpty()) {
+                System.out.println("Belum ada data jenis ayam.");
+                return;
             }
+
+            for (JenisAyam j : daftar) {
+                System.out.println(
+                    "ID: " + j.getIdJenisAyam()
+                    + " | Nama: " + j.getNamaJenis()
+                    + " | Harga/Kg: Rp" + j.getHargaPerKg()
+                    + " | Umur Panen: " + j.getUmurPanen() + " hari"
+                );
+            }
+        } catch (SQLException e) {
+            tampilkanError(e);
         }
     }
 
-    private void menuJenisAyam() throws SQLException {
-        boolean kembali = false;
+    // MENU PAKAN
 
-        while (!kembali) {
-            switch (menuOperasi("Jenis Ayam")) {
-                case 1 -> tampilJenisAyam();
-                case 2 -> tambahJenisAyam();
-                case 3 -> ubahJenisAyam();
-                case 4 -> hapusJenisAyam();
-                case 0 -> kembali = true;
+    private void menuPakan() {
+        int pilihan;
+
+        do {
+            System.out.println("\n--- KELOLA PAKAN ---");
+            System.out.println("1. Tambah Pakan");
+            System.out.println("2. Tampilkan Pakan");
+            System.out.println("3. Ubah Pakan");
+            System.out.println("4. Hapus Pakan");
+            System.out.println("0. Kembali");
+
+            pilihan = bacaInt("Pilih menu: ");
+
+            switch (pilihan) {
+                case 1:
+                    tambahPakan();
+                    break;
+                case 2:
+                    tampilkanPakan();
+                    break;
+                case 3:
+                    ubahPakan();
+                    break;
+                case 4:
+                    hapusPakan();
+                    break;
+                case 0:
+                    break;
+                default:
+                    System.out.println("Pilihan tidak tersedia.");
             }
+        } while (pilihan != 0);
+    }
+
+    private void tambahPakan() {
+        try {
+            int id = bacaInt("ID pakan: ");
+            String nama = bacaString("Nama pakan: ");
+            int stok = bacaInt("Stok pakan: ");
+
+            if (id <= 0 || stok < 0) {
+                System.out.println("ID harus positif dan stok tidak boleh negatif.");
+                return;
+            }
+
+            if (pakanDAO.insert(new Pakan(id, nama, stok))) {
+                System.out.println("Pakan berhasil ditambahkan.");
+            }
+        } catch (SQLException e) {
+            tampilkanError(e);
         }
     }
 
-    private void menuPakan() throws SQLException {
-        boolean kembali = false;
+    private void tampilkanPakan() {
+        try {
+            List<Pakan> daftar = pakanDAO.getAll();
 
-        while (!kembali) {
-            switch (menuOperasi("Pakan")) {
-                case 1 -> tampilPakan();
-                case 2 -> tambahPakan();
-                case 3 -> ubahPakan();
-                case 4 -> hapusPakan();
-                case 0 -> kembali = true;
+            System.out.println("\n--- DATA PAKAN ---");
+            if (daftar.isEmpty()) {
+                System.out.println("Belum ada data pakan.");
+                return;
             }
+
+            for (Pakan p : daftar) {
+                System.out.println(
+                    "ID: " + p.getIdPakan()
+                    + " | Nama: " + p.getNamaPakan()
+                    + " | Stok: " + p.getStok()
+                );
+            }
+        } catch (SQLException e) {
+            tampilkanError(e);
         }
     }
+
+    private void ubahPakan() {
+        try {
+            int id = bacaInt("ID pakan yang diubah: ");
+            String nama = bacaString("Nama pakan baru: ");
+            int stok = bacaInt("Stok baru: ");
+
+            if (id <= 0 || stok < 0) {
+                System.out.println("ID harus positif dan stok tidak boleh negatif.");
+                return;
+            }
+
+            if (pakanDAO.update(new Pakan(id, nama, stok))) {
+                System.out.println("Pakan berhasil diubah.");
+            } else {
+                System.out.println("ID pakan tidak ditemukan.");
+            }
+        } catch (SQLException e) {
+            tampilkanError(e);
+        }
+    }
+
+    private void hapusPakan() {
+        try {
+            int id = bacaInt("ID pakan yang dihapus: ");
+
+            if (id <= 0) {
+                System.out.println("ID harus positif.");
+                return;
+            }
+
+            if (pakanDAO.delete(id)) {
+                System.out.println("Pakan berhasil dihapus.");
+            } else {
+                System.out.println("ID pakan tidak ditemukan.");
+            }
+        } catch (SQLException e) {
+            tampilkanError(e);
+        }
+    }
+
+    // MENU PEMBERIAN PAKAN
 
     private void menuPemberianPakan() throws SQLException {
-        boolean kembali = false;
+        int pilihan;
 
-        while (!kembali) {
-            switch (menuOperasi("Pemberian Pakan")) {
-                case 1 -> tampilPemberianPakan();
-                case 2 -> tambahPemberianPakan();
-                case 3 -> ubahPemberianPakan();
-                case 4 -> hapusPemberianPakan();
-                case 0 -> kembali = true;
+        do {
+            System.out.println("\n--- KELOLA PEMBERIAN PAKAN ---");
+            System.out.println("1. Tambah Pemberian Pakan");
+            System.out.println("2. Tampilkan Pemberian Pakan");
+            System.out.println("3. Ubah Pemberian Pakan");
+            System.out.println("4. Hapus Pemberian Pakan");
+            System.out.println("0. Kembali");
+
+            pilihan = bacaInt("Pilih menu: ");
+
+            switch (pilihan) {
+                case 1 -> tambahPemberian();
+                case 2 -> tampilkanPemberian();
+                case 3 -> ubahPemberian();
+                case 4 -> hapusPemberian();
+                case 0 -> {
+                }
+                default -> System.out.println("Pilihan tidak tersedia.");
             }
+        } while (pilihan != 0);
+    }
+
+    private void tambahPemberian() throws SQLException {
+        int id = bacaInt("ID pemberian: ");
+        int jumlah = bacaInt("Jumlah pakan: ");
+        String hari = bacaHari();
+        if (id <= 0 || jumlah <= 0) {
+            System.out.println("ID dan jumlah harus lebih dari 0.");
+            return;
+        }
+        if (pemberianDAO.insert(
+                new PemberianPakan(id, jumlah, hari))) {
+            System.out.println("Pemberian pakan berhasil ditambahkan.");
         }
     }
 
-    private void tampilKandang() throws SQLException {
-        List<Kandang> data = kandangDAO.getAll();
-
-        System.out.println("\n--- DATA KANDANG ---");
-        System.out.printf("%-5s %-18s %-10s %-12s %-18s %-18s%n",
-                "ID", "Nama", "Kapasitas", "Jumlah Ayam",
-                "Jenis Ayam", "Pakan Dibutuhkan");
-
-        for (Kandang k : data) {
-            System.out.printf("%-5d %-18s %-10d %-12d %-18s %-18d%n",
-                    k.getIdKandang(), k.getNamaKandang(),
-                    k.getKapasitas(), k.getJumlahAyam(),
-                    k.getJenisAyam(), k.getPakanDibutuhkan());
-        }
-
-        if (data.isEmpty()) {
-            System.out.println("Belum ada data kandang.");
-        }
-    }
-
-    private void tambahKandang() throws SQLException {
-        int id = bacaInteger("ID kandang: ", 1, Integer.MAX_VALUE);
-        String nama = bacaTeks("Nama kandang: ");
-        int kapasitas = bacaInteger("Kapasitas: ", 1, Integer.MAX_VALUE);
-        int jumlah = bacaInteger("Jumlah ayam: ", 0, kapasitas);
-        String jenis = bacaTeks("Jenis ayam: ");
-        int pakan = bacaInteger("Pakan dibutuhkan: ", 0, Integer.MAX_VALUE);
-
-        Kandang k = new Kandang(id, nama, kapasitas, jumlah, jenis, pakan);
-        hasil(kandangDAO.insert(k), "Data kandang berhasil ditambahkan.");
-    }
-
-    private void ubahKandang() throws SQLException {
-        int id = bacaInteger("ID kandang yang diubah: ", 1, Integer.MAX_VALUE);
-        String nama = bacaTeks("Nama kandang baru: ");
-        int kapasitas = bacaInteger("Kapasitas baru: ", 1, Integer.MAX_VALUE);
-        int jumlah = bacaInteger("Jumlah ayam baru: ", 0, kapasitas);
-        String jenis = bacaTeks("Jenis ayam: ");
-        int pakan = bacaInteger("Pakan dibutuhkan: ", 0, Integer.MAX_VALUE);
-
-        Kandang k = new Kandang(id, nama, kapasitas, jumlah, jenis, pakan);
-        hasil(kandangDAO.update(k), "Data kandang berhasil diubah.");
-    }
-
-    private void hapusKandang() throws SQLException {
-        int id = bacaInteger("ID kandang yang dihapus: ", 1, Integer.MAX_VALUE);
-
-        if (konfirmasiHapus()) {
-            hasil(kandangDAO.delete(id), "Data kandang berhasil dihapus.");
-        }
-    }
-
-    private void tampilJenisAyam() throws SQLException {
-        List<JenisAyam> data = jenisAyamDAO.getAll();
-
-        System.out.println("\n--- DATA JENIS AYAM ---");
-        System.out.printf("%-5s %-22s %-18s %-12s%n",
-                "ID", "Nama Jenis", "Harga per Kg", "Umur Panen");
-
-        for (JenisAyam j : data) {
-            System.out.printf("%-5d %-22s %-18.2f %-12d%n",
-                    j.getIdJenisAyam(), j.getNamaJenis(),
-                    j.getHargaPerKg(), j.getUmurPanen());
-        }
-
-        if (data.isEmpty()) {
-            System.out.println("Belum ada data jenis ayam.");
-        }
-    }
-
-    private void tambahJenisAyam() throws SQLException {
-        int id = bacaInteger("ID jenis ayam: ", 1, Integer.MAX_VALUE);
-        String nama = bacaTeks("Nama jenis: ");
-        double harga = bacaDouble("Harga per kg: ", 0);
-        int umur = bacaInteger("Umur panen (hari): ", 1, Integer.MAX_VALUE);
-
-        JenisAyam j = new JenisAyam(id, nama, harga, umur);
-        hasil(jenisAyamDAO.insert(j),
-                "Data jenis ayam berhasil ditambahkan.");
-    }
-
-    private void ubahJenisAyam() throws SQLException {
-        int id = bacaInteger("ID jenis ayam yang diubah: ", 1, Integer.MAX_VALUE);
-        String nama = bacaTeks("Nama jenis baru: ");
-        double harga = bacaDouble("Harga per kg: ", 0);
-        int umur = bacaInteger("Umur panen (hari): ", 1, Integer.MAX_VALUE);
-
-        JenisAyam j = new JenisAyam(id, nama, harga, umur);
-        hasil(jenisAyamDAO.update(j),
-                "Data jenis ayam berhasil diubah.");
-    }
-
-    private void hapusJenisAyam() throws SQLException {
-        int id = bacaInteger("ID jenis ayam yang dihapus: ", 1, Integer.MAX_VALUE);
-
-        if (konfirmasiHapus()) {
-            hasil(jenisAyamDAO.delete(id),
-                    "Data jenis ayam berhasil dihapus.");
-        }
-    }
-
-    private void tampilPakan() throws SQLException {
-        List<Pakan> data = pakanDAO.getAll();
-
-        System.out.println("\n--- DATA PAKAN ---");
-        System.out.printf("%-5s %-25s %-12s%n",
-                "ID", "Nama Pakan", "Stok");
-
-        for (Pakan p : data) {
-            System.out.printf("%-5d %-25s %-12d%n",
-                    p.getIdPakan(), p.getNamaPakan(), p.getStok());
-        }
-
-        if (data.isEmpty()) {
-            System.out.println("Belum ada data pakan.");
-        }
-    }
-
-    private void tambahPakan() throws SQLException {
-        int id = bacaInteger("ID pakan: ", 1, Integer.MAX_VALUE);
-        String nama = bacaTeks("Nama pakan: ");
-        int stok = bacaInteger("Stok pakan: ", 0, Integer.MAX_VALUE);
-
-        Pakan p = new Pakan(id, nama, stok);
-        hasil(pakanDAO.insert(p), "Data pakan berhasil ditambahkan.");
-    }
-
-    private void ubahPakan() throws SQLException {
-        int id = bacaInteger("ID pakan yang diubah: ", 1, Integer.MAX_VALUE);
-        String nama = bacaTeks("Nama pakan baru: ");
-        int stok = bacaInteger("Stok baru: ", 0, Integer.MAX_VALUE);
-
-        Pakan p = new Pakan(id, nama, stok);
-        hasil(pakanDAO.update(p), "Data pakan berhasil diubah.");
-    }
-
-    private void hapusPakan() throws SQLException {
-        int id = bacaInteger("ID pakan yang dihapus: ", 1, Integer.MAX_VALUE);
-
-        if (konfirmasiHapus()) {
-            hasil(pakanDAO.delete(id), "Data pakan berhasil dihapus.");
-        }
-    }
-
-    private void tampilPemberianPakan() throws SQLException {
-        List<PemberianPakan> data = pemberianDAO.getAll();
-
+    private void tampilkanPemberian() throws SQLException {
+        List<PemberianPakan> daftar = pemberianDAO.getAll();
         System.out.println("\n--- DATA PEMBERIAN PAKAN ---");
-        System.out.printf("%-5s %-15s %-18s %-15s%n",
-                "ID", "Jumlah Pakan", "Tanggal", "Waktu");
-
-        for (PemberianPakan p : data) {
-            System.out.printf("%-5d %-15d %-18s %-15s%n",
-                    p.getIdPemberian(), p.getJumlahPakan(),
-                    p.getTanggalPemberian(), p.getWaktuPemberian());
-        }
-
-        if (data.isEmpty()) {
+        if (daftar.isEmpty()) {
             System.out.println("Belum ada data pemberian pakan.");
+            return;
+        }
+        for (PemberianPakan p : daftar) {
+            System.out.println(
+                    "ID: " + p.getIdPemberian()
+                            + " | Jumlah Pakan: " + p.getJumlahPakan()
+                            + " | Hari: " + p.getHari()
+            );
         }
     }
 
-    private void tambahPemberianPakan() throws SQLException {
-        int id = bacaInteger("ID pemberian: ", 1, Integer.MAX_VALUE);
-        int jumlah = bacaInteger("Jumlah pakan: ", 1, Integer.MAX_VALUE);
-        String tanggal = bacaTanggal();
-        String waktu = bacaWaktu();
-
-        PemberianPakan p =
-                new PemberianPakan(id, jumlah, tanggal, waktu);
-
-        hasil(pemberianDAO.insert(p),
-                "Data pemberian pakan berhasil ditambahkan.");
-    }
-
-    private void ubahPemberianPakan() throws SQLException {
-        int id = bacaInteger("ID pemberian yang diubah: ", 1, Integer.MAX_VALUE);
-        int jumlah = bacaInteger("Jumlah pakan baru: ", 1, Integer.MAX_VALUE);
-        String tanggal = bacaTanggal();
-        String waktu = bacaWaktu();
-
-        PemberianPakan p =
-                new PemberianPakan(id, jumlah, tanggal, waktu);
-
-        hasil(pemberianDAO.update(p),
-                "Data pemberian pakan berhasil diubah.");
-    }
-
-    private void hapusPemberianPakan() throws SQLException {
-        int id = bacaInteger("ID pemberian yang dihapus: ", 1, Integer.MAX_VALUE);
-
-        if (konfirmasiHapus()) {
-            hasil(pemberianDAO.delete(id),
-                    "Data pemberian pakan berhasil dihapus.");
+    private void ubahPemberian() throws SQLException {
+        int id = bacaInt("ID pemberian yang diubah: ");
+        int jumlah = bacaInt("Jumlah pakan baru: ");
+        String hari = bacaHari();
+        if (id <= 0 || jumlah <= 0) {
+            System.out.println("ID dan jumlah harus lebih dari 0.");
+            return;
+        }
+        if (pemberianDAO.update(
+                new PemberianPakan(id, jumlah, hari))) {
+            System.out.println("Pemberian pakan berhasil diubah.");
+        } else {
+            System.out.println("ID pemberian tidak ditemukan.");
         }
     }
 
-    private int bacaInteger(String pesan, int min, int max) {
+    private void hapusPemberian() {
+        try {
+            int id = bacaInt("ID pemberian yang dihapus: ");
+
+            if (id <= 0) {
+                System.out.println("ID harus positif.");
+                return;
+            }
+
+            if (pemberianDAO.delete(id)) {
+                System.out.println("Pemberian pakan berhasil dihapus.");
+            } else {
+                System.out.println("ID pemberian tidak ditemukan.");
+            }
+        } catch (SQLException e) {
+            tampilkanError(e);
+        }
+    }
+
+    // INPUT
+
+    private int bacaInt(String pesan) {
         while (true) {
             System.out.print(pesan);
-            String teks = input.nextLine().trim();
 
             try {
-                int angka = Integer.parseInt(teks);
-
-                if (angka >= min && angka <= max) {
-                    return angka;
-                }
-
-                System.out.println("Masukkan angka antara "
-                        + min + " dan " + max + ".");
+                return Integer.parseInt(input.nextLine().trim());
             } catch (NumberFormatException e) {
-                System.out.println("Input harus berupa bilangan bulat.");
+                System.out.println("Masukkan bilangan bulat yang valid.");
             }
         }
     }
 
-    private double bacaDouble(String pesan, double min) {
+    private String bacaString(String pesan) {
         while (true) {
             System.out.print(pesan);
-            String teks = input.nextLine().trim().replace(',', '.');
+            String nilai = input.nextLine().trim();
 
-            try {
-                double angka = Double.parseDouble(teks);
-
-                if (Double.isFinite(angka) && angka >= min) {
-                    return angka;
-                }
-
-                System.out.println("Nilai harus minimal " + min + ".");
-            } catch (NumberFormatException e) {
-                System.out.println("Input harus berupa angka.");
-            }
-        }
-    }
-
-    private String bacaTeks(String pesan) {
-        while (true) {
-            System.out.print(pesan);
-            String teks = input.nextLine().trim();
-
-            if (!teks.isEmpty()) {
-                return teks;
+            if (!nilai.isEmpty()) {
+                return nilai;
             }
 
             System.out.println("Input tidak boleh kosong.");
         }
     }
 
-    private String bacaTanggal() {
-        while (true) {
-            System.out.print("Tanggal (YYYY-MM-DD): ");
-            String tanggal = input.nextLine().trim();
+    private String bacaHari() {
+        String[] daftarHari = {
+            "Senin", "Selasa", "Rabu", "Kamis",
+            "Jumat", "Sabtu", "Minggu"
+        };
 
-            try {
-                return LocalDate.parse(tanggal).toString();
-            } catch (Exception e) {
-                System.out.println(
-                        "Tanggal tidak valid. Contoh: 2026-10-15");
+        while (true) {
+            String hari = bacaString("Hari pemberian pakan: ");
+
+            for (String pilihan : daftarHari) {
+                if (pilihan.equalsIgnoreCase(hari)) {
+                    return pilihan;
+                }
             }
+
+            System.out.println("Nama hari tidak valid.");
         }
     }
 
-    private String bacaWaktu() {
-        while (true) {
-            System.out.print("Waktu (HH:MM atau HH:MM:SS): ");
-            String waktu = input.nextLine().trim();
-
-            try {
-                LocalTime jam = waktu.length() == 5
-                        ? LocalTime.parse(waktu)
-                        : LocalTime.parse(waktu);
-
-                return jam.toString().length() == 5
-                        ? jam.toString() + ":00"
-                        : jam.toString();
-            } catch (Exception e) {
-                System.out.println(
-                        "Waktu tidak valid. Contoh: 08:30 atau 08:30:00");
-            }
-        }
+    private void tampilkanError(SQLException e) {
+        System.out.println("Kesalahan database: " + e.getMessage());
     }
-
-    private boolean konfirmasiHapus() {
-        while (true) {
-            System.out.print("Yakin ingin menghapus? (y/n): ");
-            String jawaban = input.nextLine().trim();
-
-            if (jawaban.equalsIgnoreCase("y")) {
-                return true;
-            }
-
-            if (jawaban.equalsIgnoreCase("n")) {
-                System.out.println("Penghapusan dibatalkan.");
-                return false;
-            }
-
-            System.out.println("Masukkan y atau n.");
-        }
-    }
-
-    private void hasil(boolean berhasil, String pesan) {
-        if (berhasil) {
-            System.out.println(pesan);
-        } else {
-            System.out.println(
-                    "Operasi tidak berhasil. Periksa ID atau data yang dimasukkan.");
-        }
-    } 
 }

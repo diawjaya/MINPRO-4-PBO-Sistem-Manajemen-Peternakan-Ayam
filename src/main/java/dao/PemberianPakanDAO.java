@@ -1,74 +1,72 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package dao;
 
-import database.Koneksi;
 import controller.PemberianPakan;
+import database.Koneksi;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-/**
- *
- * @author ASUS TUF
- */
+
 public class PemberianPakanDAO {
+
     public List<PemberianPakan> getAll() throws SQLException {
-        List<PemberianPakan> data = new ArrayList<>();
-        String sql = "SELECT * FROM pemberian_pakan "
-                + "ORDER BY id_pemberian";
+        List<PemberianPakan> daftar = new ArrayList<>();
+        String sql = "SELECT * FROM pemberian_pakan";
 
         try (Connection conn = Koneksi.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
-                data.add(new PemberianPakan(
+                daftar.add(new PemberianPakan(
                     rs.getInt("id_pemberian"),
                     rs.getInt("jumlah_pakan"),
-                    rs.getDate("tanggal_pemberian").toString(),
-                    rs.getTime("waktu_pemberian").toString()
+                    rs.getString("hari")
                 ));
             }
         }
-        return data;
+
+        return daftar;
     }
 
-    public boolean insert(PemberianPakan p) throws SQLException {
-        String sql = "INSERT INTO pemberian_pakan VALUES (?, ?, ?, ?)";
+    public boolean insert(PemberianPakan data) throws SQLException {
+        String sql = "INSERT INTO pemberian_pakan "
+                   + "(id_pemberian, jumlah_pakan, hari) VALUES (?, ?, ?)";
 
         try (Connection conn = Koneksi.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, p.getIdPemberian());
-            ps.setInt(2, p.getJumlahPakan());
-            ps.setDate(3, Date.valueOf(p.getTanggalPemberian()));
-            ps.setTime(4, Time.valueOf(p.getWaktuPemberian()));
+
+            ps.setInt(1, data.getIdPemberian());
+            ps.setInt(2, data.getJumlahPakan());
+            ps.setString(3, data.getHari());
+
             return ps.executeUpdate() > 0;
         }
     }
 
-    public boolean update(PemberianPakan p) throws SQLException {
-        String sql = "UPDATE pemberian_pakan SET jumlah_pakan=?, "
-                + "tanggal_pemberian=?, waktu_pemberian=? "
-                + "WHERE id_pemberian=?";
+    public boolean update(PemberianPakan data) throws SQLException {
+        String sql = "UPDATE pemberian_pakan "
+                   + "SET jumlah_pakan = ?, hari = ? "
+                   + "WHERE id_pemberian = ?";
 
         try (Connection conn = Koneksi.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, p.getJumlahPakan());
-            ps.setDate(2, Date.valueOf(p.getTanggalPemberian()));
-            ps.setTime(3, Time.valueOf(p.getWaktuPemberian()));
-            ps.setInt(4, p.getIdPemberian());
+
+            ps.setInt(1, data.getJumlahPakan());
+            ps.setString(2, data.getHari());
+            ps.setInt(3, data.getIdPemberian());
+
             return ps.executeUpdate() > 0;
         }
     }
 
-    public boolean delete(int id) throws SQLException {
-        String sql = "DELETE FROM pemberian_pakan WHERE id_pemberian=?";
+    public boolean delete(int idPemberian) throws SQLException {
+        String sql = "DELETE FROM pemberian_pakan WHERE id_pemberian = ?";
 
         try (Connection conn = Koneksi.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
+
+            ps.setInt(1, idPemberian);
             return ps.executeUpdate() > 0;
         }
     }

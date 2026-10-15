@@ -2,6 +2,7 @@
 package model;
 
 public class Pakan {
+
     private int idPakan;
     private String namaPakan;
     private int stok;
@@ -22,13 +23,5 @@ public class Pakan {
 
     public int getStok() {
         return stok;
-    }
-
-    public void setNamaPakan(String namaPakan) {
-        this.namaPakan = namaPakan;
-    }
-
-    public void setStok(int stok) {
-        this.stok = stok;
     }
 }

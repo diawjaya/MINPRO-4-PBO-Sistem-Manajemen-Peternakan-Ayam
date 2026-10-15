@@ -1,27 +1,15 @@
+
 package controller;
 
 public class PemberianPakan {
-
-    private final int idPemberian;
+    private int idPemberian;
     private int jumlahPakan;
-    private String tanggalPemberian;
-    private String waktuPemberian;
+    private String hari;
 
-    public PemberianPakan(int idPemberian, int jumlahPakan,
-            String tanggalPemberian, String waktuPemberian) {
-
+    public PemberianPakan(int idPemberian, int jumlahPakan, String hari) {
         this.idPemberian = idPemberian;
         this.jumlahPakan = jumlahPakan;
-        this.tanggalPemberian = tanggalPemberian;
-        this.waktuPemberian = waktuPemberian;
-    }
-
-    public PemberianPakan(int idPemberian, int jumlahPakan) {
-
-        this.idPemberian = idPemberian;
-        this.jumlahPakan = jumlahPakan;
-        this.tanggalPemberian = "-";
-        this.waktuPemberian = "-";
+        this.hari = hari;
     }
 
     public int getIdPemberian() {
@@ -32,23 +20,7 @@ public class PemberianPakan {
         return jumlahPakan;
     }
 
-    public String getTanggalPemberian() {
-        return tanggalPemberian;
-    }
-
-    public String getWaktuPemberian() {
-        return waktuPemberian;
-    }
-
-    public void setJumlahPakan(int jumlahPakan) {
-        this.jumlahPakan = jumlahPakan;
-    }
-
-    public void setTanggalPemberian(String tanggalPemberian) {
-        this.tanggalPemberian = tanggalPemberian;
-    }
-
-    public void setWaktuPemberian(String waktuPemberian) {
-        this.waktuPemberian = waktuPemberian;
+    public String getHari() {
+        return hari;
     }
 }

@@ -1,7 +1,7 @@
-
 package model;
 
 public class Kandang {
+
     private int idKandang;
     private String namaKandang;
     private int kapasitas;
@@ -9,9 +9,8 @@ public class Kandang {
     private String jenisAyam;
     private int pakanDibutuhkan;
 
-    public Kandang(int idKandang, String namaKandang,
-            int kapasitas, int jumlahAyam,
-            String jenisAyam, int pakanDibutuhkan) {
+    public Kandang(int idKandang, String namaKandang, int kapasitas,
+                   int jumlahAyam, String jenisAyam, int pakanDibutuhkan) {
         this.idKandang = idKandang;
         this.namaKandang = namaKandang;
         this.kapasitas = kapasitas;
@@ -42,25 +41,5 @@ public class Kandang {
 
     public int getPakanDibutuhkan() {
         return pakanDibutuhkan;
-    }
-
-    public void setNamaKandang(String namaKandang) {
-        this.namaKandang = namaKandang;
-    }
-
-    public void setKapasitas(int kapasitas) {
-        this.kapasitas = kapasitas;
-    }
-
-    public void setJumlahAyam(int jumlahAyam) {
-        this.jumlahAyam = jumlahAyam;
-    }
-
-    public void setJenisAyam(String jenisAyam) {
-        this.jenisAyam = jenisAyam;
-    }
-
-    public void setPakanDibutuhkan(int pakanDibutuhkan) {
-        this.pakanDibutuhkan = pakanDibutuhkan;
     }
 }
