@@ -47,22 +47,14 @@ public class PBView {
 
             try {
                 switch (pilihan) {
-                    case 1:
-                        menuKandang();
-                        break;
-                    case 2:
-                        menuJenisAyam();
-                        break;
-                    case 3:
-                        menuPakan();
-                        break;
-                    case 4:
-                        menuPemberianPakan();
-                        break;
-                    case 0:
+                    case 1 -> menuKandang();
+                    case 2 -> menuJenisAyam();
+                    case 3 -> menuPakan();
+                    case 4 -> menuPemberianPakan();
+                    case 0 -> {
                         berjalan = false;
                         System.out.println("Program selesai.");
-                        break;
+                    }
                 }
             } catch (SQLException e) {
                 System.out.println("Terjadi kesalahan database: "
@@ -87,21 +79,11 @@ public class PBView {
 
         while (!kembali) {
             switch (menuOperasi("Kandang")) {
-                case 1:
-                    tampilKandang();
-                    break;
-                case 2:
-                    tambahKandang();
-                    break;
-                case 3:
-                    ubahKandang();
-                    break;
-                case 4:
-                    hapusKandang();
-                    break;
-                case 0:
-                    kembali = true;
-                    break;
+                case 1 -> tampilKandang();
+                case 2 -> tambahKandang();
+                case 3 -> ubahKandang();
+                case 4 -> hapusKandang();
+                case 0 -> kembali = true;
             }
         }
     }
@@ -111,21 +93,11 @@ public class PBView {
 
         while (!kembali) {
             switch (menuOperasi("Jenis Ayam")) {
-                case 1:
-                    tampilJenisAyam();
-                    break;
-                case 2:
-                    tambahJenisAyam();
-                    break;
-                case 3:
-                    ubahJenisAyam();
-                    break;
-                case 4:
-                    hapusJenisAyam();
-                    break;
-                case 0:
-                    kembali = true;
-                    break;
+                case 1 -> tampilJenisAyam();
+                case 2 -> tambahJenisAyam();
+                case 3 -> ubahJenisAyam();
+                case 4 -> hapusJenisAyam();
+                case 0 -> kembali = true;
             }
         }
     }
@@ -135,21 +107,11 @@ public class PBView {
 
         while (!kembali) {
             switch (menuOperasi("Pakan")) {
-                case 1:
-                    tampilPakan();
-                    break;
-                case 2:
-                    tambahPakan();
-                    break;
-                case 3:
-                    ubahPakan();
-                    break;
-                case 4:
-                    hapusPakan();
-                    break;
-                case 0:
-                    kembali = true;
-                    break;
+                case 1 -> tampilPakan();
+                case 2 -> tambahPakan();
+                case 3 -> ubahPakan();
+                case 4 -> hapusPakan();
+                case 0 -> kembali = true;
             }
         }
     }
@@ -159,21 +121,11 @@ public class PBView {
 
         while (!kembali) {
             switch (menuOperasi("Pemberian Pakan")) {
-                case 1:
-                    tampilPemberianPakan();
-                    break;
-                case 2:
-                    tambahPemberianPakan();
-                    break;
-                case 3:
-                    ubahPemberianPakan();
-                    break;
-                case 4:
-                    hapusPemberianPakan();
-                    break;
-                case 0:
-                    kembali = true;
-                    break;
+                case 1 -> tampilPemberianPakan();
+                case 2 -> tambahPemberianPakan();
+                case 3 -> ubahPemberianPakan();
+                case 4 -> hapusPemberianPakan();
+                case 0 -> kembali = true;
             }
         }
     }
